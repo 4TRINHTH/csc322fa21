@@ -1,0 +1,294 @@
+<script src="https://threejs.org/build/three.js"></script>
+body {
+  margin: 0;
+  }
+/*
+ Variables are declared in
+ advance to simplify things.
+ */
+let renderer, scene, camera, draw, counter = 0;
+
+/*
+ The init() function is used to initialized the attributes.
+ */
+function init(){
+  renderer = new THREE.WebGLRenderer();
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+  camera.position.set(0, 0, 100);
+}
+
+ /*
+ 	This function, when called, is executed over and over in 
+ an infinite loop in order to produce an effect of animation.
+ 	The animate() function is used to increase 
+ the frame count and execute the draw() function.
+ */
+function animate(){
+  requestAnimationFrame(animate);
+  counter++;
+  draw();
+  renderer.render(scene, camera); // To render the scene
+}
+
+ /*
+ Call init() to actually execute the basic stuff.
+ */
+init();
+
+/*
+Initialize the array that holds
+the faces of the monument.
+*/
+const monument = [];
+
+/*
+Define the vertex, index, color, and normal
+arrays. Each one has 8 elements, since there
+are 8 faces in total. In the color and normal
+arrays, for each face, each vertex is given
+the same value, so that there is no interpolation.
+After all, the faces should always be flat
+surfaces, not curves.
+*/
+//Each vertex needs to appear once per face
+const vertices = [
+	[//Vertics for Rectangle1
+  // [x]    [y]    [z]
+   -27.5,   0.0,  27.5,
+    27.5,   0.0,  27.5,
+    17.0, 500.0,  17.0,
+   -17.0, 500.0,  17.0,
+  ],
+  [//Vertics for Rectangle2
+  // [x]    [y]    [z]
+    27.5,   0.0,  27.5,
+    27.5,   0.0, -27.5,
+    17.0, 500.0, -17.0,
+    17.0, 500.0,  17.0,
+  ],
+  [//Vertics for Rectangle3
+  // [x]    [y]    [z]
+    27.5,   0.0, -27.5,
+   -27.5,   0.0, -27.5,
+   -17.0, 500.0, -17.0,
+    17.0, 500.0, -17.0,
+  ],
+  [//Vertics for Rectangle4
+  // [x]    [y]    [z]
+   -27.5,   0.0, -27.5,
+   -27.5,   0.0,  27.5,
+   -17.0, 500.0,  17.0,
+   -17.0, 500.0, -17.0,
+  ],
+  [//Vertics for Triangle1
+  // [x]    [y]    [z]
+   -17.0, 500.0,  17.0,
+    17.0, 500.0,  17.0,
+     0.0, 555.0,   0.0,
+  ],
+  [//Vertics for Triangle2
+  // [x]    [y]    [z]
+  	17.0, 500.0,  17.0,
+  	17.0, 500.0, -17.0,
+     0.0, 555.0,   0.0,
+  ],
+  [//Vertics for Triangle3
+  // [x]    [y]    [z]
+    17.0, 500.0, -17.0,
+   -17.0, 500.0, -17.0,
+     0.0, 555.0,   0.0,
+  ],
+  [//Vertics for Triangle4
+  // [x]    [y]    [z]
+   -17.0, 500.0, -17.0,
+   -17.0, 500.0,  17.0,
+     0.0, 555.0,   0.0,
+  ],
+];
+const indices = [
+	[//Indices for Rectangle1
+  	0, 1, 2,
+  	0, 2, 3,
+  ],
+  [//Indices for Rectangle2
+  	0, 1, 2,
+  	0, 2, 3,
+  ],
+  [//Indices for Rectangle3
+  	0, 1, 2,
+  	0, 2, 3,
+  ],
+  [//Indices for Rectangle4
+  	0, 1, 2,
+  	0, 2, 3,
+  ],
+  [//Indices for Triangle1
+  	0, 1, 2,
+  ],
+  [//Indices for Triangle2
+  	0, 1, 2,
+  ],
+  [//Indices for Triangle3
+  	0, 1, 2,
+  ],
+  [//Indices for Triangle4
+  	0, 1, 2,
+  ],
+];
+const colors = [
+//Dark Orange for Rectangle1
+[	//[R]  [G]  [B]
+		0.8, 0.5, 0.2,
+    0.8, 0.5, 0.2,
+    0.8, 0.5, 0.2,
+    0.8, 0.5, 0.2,
+],
+//Cornflower? blue for Rectangle2
+[ //[R]  [G]  [B]
+ 	  0.3, 0.7, 1.0,
+    0.3, 0.7, 1.0,
+    0.3, 0.7, 1.0,
+    0.3, 0.7, 1.0,
+  ],
+//Green for Rectangle3
+[ //[R]  [G]  [B]
+    0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0,
+  ],
+[ //Pink for Rectangle4
+	//[R]  [G]  [B]
+    1.0, 0.5, 1.0,
+    1.0, 0.5, 1.0,
+    1.0, 0.5, 1.0,
+    1.0, 0.5, 1.0,
+  ],
+[ //Yellow for Triangle1
+	//[R]  [G]  [B]
+    1.0, 1.0, 0.0,
+    1.0, 1.0, 0.0,
+    1.0, 1.0, 1.0,
+  ],
+[ //White for Triangle2
+	//[R]  [G]  [B]
+    1.0, 1.0, 1.0,
+  	1.0, 1.0, 1.0,
+  	1.0, 1.0, 1.0,
+  ],
+[ //Red for Triangle3
+	//[R]  [G]  [B]
+    1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
+  ],
+[ //Purple for Triangle4
+	//[R]  [G]  [B]
+    0.5, 0.0, 1.0,
+    0.5, 0.0, 1.0,
+    0.5, 0.0, 1.0,
+],
+];
+const normals = [
+	[//Normals for Rectangle1
+  	0, 0, 1,
+    0, 0, 1,
+    0, 0, 1,
+    0, 0, 1,
+  ],
+  [//Normals for Rectangle2
+  	1, 0, 0,
+    1, 0, 0,
+    1, 0, 0,
+    1, 0, 0,
+  ],
+  [//Normals for Rectangle3
+  	0, 0, -1,
+    0, 0, -1,
+    0, 0, -1,
+    0, 0, -1,
+  ],
+  [//Normals for Rectangle4
+   -1, 0, 0,
+   -1, 0, 0,
+   -1, 0, 0,
+   -1, 0, 0,
+  ],
+  [//Normals for Triangle1
+    0, 0.5, 1,
+    0, 0.5, 1,
+    0, 0.5, 1,
+  ],
+  [//Normals for Triangle2
+    1, 0.5, 0,
+    1, 0.5, 0,
+    1, 0.5, 0,
+  ],
+  [//Normals for Triangle3
+    0, 0.5, -1,
+    0, 0.5, -1,
+    0, 0.5, -1,
+  ],
+  [//Normals for Triangle4
+    -1, 0.5, 0,
+    -1, 0.5, 0,
+    -1, 0.5, 0,
+  ],
+];
+
+/*
+A for loop is given through the array of face vertices.
+For each one, A new geometry is created for position, normal, and color.
+*/
+for(let i = 0; i < vertices.length; i++){
+const geometry = new THREE.BufferGeometry();
+geometry.setIndex(indices[i]);
+geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices[i], 3));
+geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals[i], 3));
+geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors[i], 3));
+  const material = new THREE.MeshPhongMaterial({vertexColors: true});
+  const t = new THREE.Mesh(geometry, material);
+  monument.push(t);
+  scene.add(t);
+}
+
+/*
+A soft white ambient light source is created.
+*/
+const l = new THREE.AmbientLight(0x404040);
+scene.add(l);
+
+/*
+Bright white directional light is created to point to
+the direction of the origin from (1, 1, 1).
+*/
+const dl = new THREE.DirectionalLight(0xffffff, 0.5);
+dl.position.set(1, 1, 1);
+scene.add(dl);
+
+/*
+The monument is being shift all the faces down by 266, and 
+then being scale in (0.14, 0.14, 0.14) to fit in the screen.
+*/
+for(let i = 0; i < monument.length; i++){
+monument[i].position.set(0, -266, 0);
+monument[i].applyMatrix4(new THREE.Matrix4().makeScale(0.14, 0.14, 0.14));//Scale must be x = y = z
+}
+draw = function(){
+  /*
+   The monument is rotating by being applied to the
+   rotation matrix to each face.
+   */
+  for(let i = 0; i < monument.length; i++){
+  monument[i].applyMatrix4(new THREE.Matrix4().makeRotationY(0.011));
+  }
+}
+
+ /*
+ Call the animate() function.
+ */
+animate();
