@@ -1,0 +1,156 @@
+HTML
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
+Javascript 
+
+let spirits = [];
+
+let threshold = 30;
+let accChangeX = 0;
+let accChangeY = 0;
+let accChangeT = 0;
+
+function setup() {
+  createCanvas(777, 777);//(Height=777, Width=777)
+
+  for (let i = 0; i < 111; i++)//111 spirits
+  {
+    spirits.push(new Spirit());
+  }
+}
+
+function draw() 
+  { 
+    var
+  /*
+  777 = height/width of program
+  How much motion depends on the division of the height/width the motion parallax will have
+  divide by smaller values = more motion
+  divide by bigger values = less motion
+  */
+  layer1 = [((mouseX-(777/2))/100),((mouseY-(777/2))/100)],
+  layer2 = [((mouseX-(777/2))/50),((mouseY-(777/2))/50)],
+  layer3 = [((mouseX-(777/2))/25),((mouseY-(777/2))/25)];
+
+  background(0, 0, 100);//Dark blue for the night sky
+    
+    // An ellipse as The orange moon
+  fill(999, 99, 0)//Orange moon
+  stroke(200, 10, 0)//Red outlines of the moon
+  ellipse(389, 111, 200, 200);//Moon location, Size
+    
+    //Snow hill#1
+  stroke(192, 192, 192)//silver outlines of the snowy hill
+  fill(200, 200, 255)//Night toned snow
+  arc(layer3[0]+222, layer2[1]+444, layer1[1]+444, layer1[1]+555, PI, TWO_PI);
+    
+    //Snow hill#2
+  stroke(192, 192, 192)//silver outlines of the snowy hill
+  fill(222, 222, 255)//Night toned snow
+  arc(layer2[0]+555, layer2[1]+444, layer1[1]+444, layer1[1]+333, PI, TWO_PI);
+    
+    //A rectangle as the Snowy ground
+  fill(244, 244, 255)//Light Night toned white snow
+  stroke(192, 192, 192)//silver outlines of the snowy ground
+  rect(layer2[0]-11, layer2[1]+777, 799, -333)
+    
+    // A triangle as a Pine tree
+  fill(0, 111, 0)//Green Tree
+  stroke(0, 55, 0)//Dark Green outlines
+  triangle(layer3[1]+450, layer3[1]+555, layer3[1]+150, layer3[1]+555, layer3[1]+300, layer3[1]+100);
+    
+    //Spirits
+  fill(444, 222, 0)//Yellow spirits
+  stroke(333, 111, 0)//Orange outlines of the spirits
+  for (let i = 0; i < spirits.length; i++) {
+    spirits[i].move();
+    spirits[i].display();
+  }
+  
+  checkForShake();
+}
+
+
+function checkForShake() {
+  // Calculate total change in accelerationX and accelerationY
+  accChangeX = abs(accelerationX - pAccelerationX);
+  accChangeY = abs(accelerationY - pAccelerationY);
+  accChangeT = accChangeX + accChangeY;
+  // If shake
+  if (accChangeT >= threshold) {
+    for (let i = 0; i < spirits.length; i++) {
+      spirits[i].shake();
+      spirits[i].turn();
+    }
+  }
+  // If not shake
+  else {
+    for (let i = 0; i < spirits.length; i++) {
+      spirits[i].stopShake();
+      spirits[i].turn();
+      spirits[i].move();
+    }
+  }
+}
+
+// Spirit class
+class Spirit {
+  constructor() {
+    this.x = random(width);
+    this.y = random(height);
+    this.diameter = random(15, 30);//Sizes of the spirits
+    this.xspeed = random(-2, 2);
+    this.yspeed = random(-2, 2);
+    this.oxspeed = this.xspeed;
+    this.oyspeed = this.yspeed;
+    this.direction = 0.7;
+  }
+
+  move() {
+    this.x += this.xspeed * this.direction;
+    this.y += this.yspeed * this.direction;
+  }
+
+  // Bounce when touch the edge of the canvas
+  turn() {
+    if (this.x < 0) {
+      this.x = 0;
+      this.direction = -this.direction;
+    } else if (this.y < 0) {
+      this.y = 0;
+      this.direction = -this.direction;
+    } else if (this.x > width - 20) {
+      this.x = width - 20;
+      this.direction = -this.direction;
+    } else if (this.y > height - 20) {
+      this.y = height - 20;
+      this.direction = -this.direction;
+    }
+  }
+
+  // Add to xspeed and yspeed based on
+  // the change in accelerationX value
+  shake() {
+    this.xspeed += random(5, accChangeX / 3);
+    this.yspeed += random(5, accChangeX / 3);
+  }
+
+  // Gradually slows down
+  stopShake() {
+    if (this.xspeed > this.oxspeed) {
+      this.xspeed -= 0.6;
+    } else {
+      this.xspeed = this.oxspeed;
+    }
+    if (this.yspeed > this.oyspeed) {
+      this.yspeed -= 0.6;
+    } else {
+      this.yspeed = this.oyspeed;
+    }
+  }
+
+  display() {
+    ellipse(this.x, this.y, this.diameter, this.diameter);
+  }
+}
